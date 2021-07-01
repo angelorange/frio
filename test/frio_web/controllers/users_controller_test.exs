@@ -38,7 +38,7 @@ defmodule FrioWeb.UsersControllerTest do
       conn = get(conn, Routes.users_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => _id,
                "cpf" => "some cpf",
                "full_name" => "some full_name"
              } = json_response(conn, 200)["data"]
@@ -60,7 +60,7 @@ defmodule FrioWeb.UsersControllerTest do
       conn = get(conn, Routes.users_path(conn, :show, id))
 
       assert %{
-               "id" => id,
+               "id" => _id,
                "cpf" => "some updated cpf",
                "full_name" => "some updated full_name"
              } = json_response(conn, 200)["data"]
