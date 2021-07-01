@@ -9,10 +9,11 @@ defmodule Frio.Accounts.Users do
     timestamps()
   end
 
+  @required ~w(full_name cpf)a
   @doc false
   def changeset(users, attrs) do
     users
-    |> cast(attrs, [:full_name, :cpf])
-    |> validate_required([:full_name, :cpf])
+    |> cast(attrs, @required)
+    |> validate_required(@required)
   end
 end

@@ -14,10 +14,12 @@ defmodule Frio.Accounts.Address do
     timestamps()
   end
 
+  @optional ~w(number complement)a
+  @required ~w(city state postal_code state neighborhood street)a
   @doc false
   def changeset(address, attrs) do
     address
-    |> cast(attrs, [:street, :number, :complement, :neighborhood, :city, :state, :postal_code])
-    |> validate_required([:street, :number, :complement, :neighborhood, :city, :state, :postal_code])
+    |> cast(attrs, @required ++ @optional)
+    |> validate_required(@required ++ @optional)
   end
 end
