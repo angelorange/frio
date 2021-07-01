@@ -7,6 +7,8 @@ defmodule FrioWeb.Router do
 
   scope "/api", FrioWeb do
     pipe_through :api
+
+    resources "/users", UsersController, except: [:new, :edit]
   end
 
   # Enables LiveDashboard only for development
