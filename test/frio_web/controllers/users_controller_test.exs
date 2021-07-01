@@ -1,23 +1,8 @@
 defmodule FrioWeb.UsersControllerTest do
   use FrioWeb.ConnCase
+  import Frio.Factory
 
   alias Frio.Accounts
-  alias Frio.Accounts.Users
-
-  @create_attrs %{
-    cpf: "some cpf",
-    full_name: "some full_name"
-  }
-  @update_attrs %{
-    cpf: "some updated cpf",
-    full_name: "some updated full_name"
-  }
-  @invalid_attrs %{cpf: nil, full_name: nil}
-
-  def fixture(:users) do
-    {:ok, users} = Accounts.create_users(@create_attrs)
-    users
-  end
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -32,38 +17,44 @@ defmodule FrioWeb.UsersControllerTest do
 
   describe "create users" do
     test "renders users when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.users_path(conn, :create), users: @create_attrs)
-      assert %{"id" => id} = json_response(conn, 201)["data"]
+      user = insert(:user)
+      params = %{
+        cpf: Faker.Lorem.word(),
+        full_name: Faker.Person.PtBr.name()
+      }
+      conn = post(conn, Routes.users_path(conn, :create), users: params)
 
-      conn = get(conn, Routes.users_path(conn, :show, id))
-
-      assert %{
-               "id" => _id,
-               "cpf" => "some cpf",
-               "full_name" => "some full_name"
-             } = json_response(conn, 200)["data"]
+      assert expected = json_response(conn, 201)["data"]
+      assert expected["cpf"] == params.cpf 
+      assert expected["full_name"] == params.full_name
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.users_path(conn, :create), users: @invalid_attrs)
+      params = %{
+        cpf: nil,
+        full_name: nil
+      }
+      conn = post(conn, Routes.users_path(conn, :create), users: params)
       assert json_response(conn, 422)["errors"] != %{}
     end
   end
 
   describe "update users" do
     setup [:create_users]
-
+    
     test "renders users when data is valid", %{conn: conn, users: %Users{id: id} = users} do
+      user = insert(:user)
+      params = %{
+        cpf: Faker.Lorem.word(),
+        full_name: Faker.Person.PtBr.name()
+      }
+
       conn = put(conn, Routes.users_path(conn, :update, users), users: @update_attrs)
       assert %{"id" => ^id} = json_response(conn, 200)["data"]
 
       conn = get(conn, Routes.users_path(conn, :show, id))
 
-      assert %{
-               "id" => _id,
-               "cpf" => "some updated cpf",
-               "full_name" => "some updated full_name"
-             } = json_response(conn, 200)["data"]
+      assert expected = json_response(conn, 200)
     end
 
     test "renders errors when data is invalid", %{conn: conn, users: users} do
@@ -72,21 +63,16 @@ defmodule FrioWeb.UsersControllerTest do
     end
   end
 
-  describe "delete users" do
-    setup [:create_users]
+  # describe "delete users" do
+  #   setup [:create_users]
 
-    test "deletes chosen users", %{conn: conn, users: users} do
-      conn = delete(conn, Routes.users_path(conn, :delete, users))
-      assert response(conn, 204)
+  #   test "deletes chosen users", %{conn: conn, users: users} do
+  #     conn = delete(conn, Routes.users_path(conn, :delete, users))
+  #     assert response(conn, 204)
 
-      assert_error_sent 404, fn ->
-        get(conn, Routes.users_path(conn, :show, users))
-      end
-    end
-  end
-
-  defp create_users(_) do
-    users = fixture(:users)
-    %{users: users}
-  end
+  #     assert_error_sent 404, fn ->
+  #       get(conn, Routes.users_path(conn, :show, users))
+  #     end
+  #   end
+  # end
 end
